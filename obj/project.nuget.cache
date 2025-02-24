@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "LV9lD2s8N1A=",
+  "success": true,
+  "projectFilePath": "/Users/mathieu/DEV/Duck Hunt/DuckHunt-Raylib/DuckHunt-Raylib.csproj",
+  "expectedPackageFiles": [
+    "/Users/mathieu/.nuget/packages/raylib-cs/7.0.1/raylib-cs.7.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
