@@ -8,37 +8,59 @@ namespace DuckHunt_Raylib
   {
 
     // Screen
-    private int screenWidth = Raylib.GetScreenWidth();
-    private int screenHeight = Raylib.GetScreenHeight();
+    private int screenWidth;
+    private int screenHeight;
     private Vector2 center;
 
-    // Directions
-    private Texture2D directions;
+    // Positions
     private Vector2 gameOverPos;
+    private Vector2 scorePos;
+    private Vector2 duckScorePos;
+    private Vector2 posScorePos;
+    private int posScore;
+    private Vector2 finalScorePos;
+    private Vector2 finalNumScorePos;
 
-    // Graphics
-    private Rectangle directRect;
-    private int isShooting;
-    private Texture2D dog;
-    private Rectangle dogRect;
-    private Texture2D screen;
-    private Texture2D flora;
+    // Rectangles (areas)
     private Rectangle screenRect;
     private Rectangle floraRect;
+    private Rectangle directRect;
+    private Rectangle dogRect;
+    private Rectangle endDogRect;
+    private Rectangle[] cloudRect;
+    private Rectangle[] pointDuckRect;
+    private Rectangle shotRect;
+    private Rectangle sourceRect;
+    private Rectangle retRect;
+    private Rectangle exRect;
+
+    // Sounds
+    private Sound quackQuack;
+    private Sound sniff;
+    private Sound gunshot;
+    private Sound gunCock;
+    private Sound gunDry;
+    private Sound quackSound;
+
+    // Graphics
+    // private Texture2D directions;
+    private int isShooting;
+    private Texture2D dog;
+    private Texture2D screen;
+    private Texture2D flora;
     private Texture2D duck;
     private Texture2D endDog;
-    private Rectangle endDogRect;
     private Texture2D pointDuck;
-    private Rectangle[] pointDuckRect;
     private Texture2D cloud;
-    private Rectangle[] cloudRect;
     private Texture2D shot0;
     private Texture2D shot1;
     private Texture2D shot2;
     private Texture2D shot3;
-    private Rectangle shotRect;
+    private Texture2D reticle;
+    private Texture2D explosion;
+    private int score;
 
-    // Time
+    // Timer
     private float timer;
     private float interval;
     private float deltaTime;
@@ -47,61 +69,32 @@ namespace DuckHunt_Raylib
     // Frames
     private int currentFrame;
     private int frameCount;
+
+    // Sprites
     private int spriteWidth;
     private int spriteHeight;
-    private Rectangle sourceRect;
 
-    // Sounds
-    private Sound sniff;
-    private Sound gunshot;
-    private Sound gunCock;
-    private Sound gunDry;
-    private Sound quackSound;
-
-    // UI
-    private Texture2D reticle;
-    private Texture2D explosion;
-    private Rectangle retRect;
-    private Rectangle exRect;
-
-    // Objects
+    // Ducks
     private Duck quack;
 
     // Fonts
     private Font quartz;
 
-    // Score
-    private Vector2 scorePos;
-    private Vector2 duckScorePos;
-    private Vector2 posScorePos;
-    private int score;
-    private int posScore;
-    private Vector2 finalScorePos;
-    private Vector2 finalNumScorePos;
 
-    // Constructor
-    public GamePlay()
+    public GamePlay(int width, int height)
     {
-      // Raylib.InitWindow(screenWidth, screenHeight, "Duck Hunt with Raylib-cs project");
-      // Raylib.SetTargetFPS(60);
-      // LoadContent();
-      // Initialize();
+      screenWidth = width;
+      screenHeight = height;
     }
 
     public void Time()
     {
-      while (!Raylib.WindowShouldClose())
-      {
-        deltaTime = Raylib.GetFrameTime();
-      }
-      // UnloadContent();
-      // Raylib.CloseWindow();
+      deltaTime = Raylib.GetFrameTime();
     }
 
     public void Initialize()
     {
       directRect = new Rectangle(225, 75, 650, 325);
-
       dogRect = new Rectangle(-190, 410, 190, 138);
       timer = 0f;
       jumpTime = 0f;
@@ -118,7 +111,7 @@ namespace DuckHunt_Raylib
       exRect = new Rectangle(535, 335, 45, 45);
       center = new Vector2(557, 557);
 
-      quack = new Duck(gunCock);
+      quack = new Duck(gunCock, quackQuack);
 
       shotRect = new Rectangle(113, 607, 80, 45);
 
@@ -149,11 +142,7 @@ namespace DuckHunt_Raylib
 
     public void LoadContent()
     {
-
-      // Scene
       screen = Raylib.LoadTexture("assets/screen.png");
-
-      // Sounds
       sniff = Raylib.LoadSound("assets/sniff.wav");
       Raylib.PlaySound(sniff);
       gunshot = Raylib.LoadSound("assets/gunshot.wav");
@@ -161,7 +150,6 @@ namespace DuckHunt_Raylib
       gunDry = Raylib.LoadSound("assets/gunDry.wav");
       quackSound = Raylib.LoadSound("assets/quackSound.wav");
 
-      // Graphics
       dog = Raylib.LoadTexture("assets/dogWalk.png");
       flora = Raylib.LoadTexture("assets/flora.png");
       explosion = Raylib.LoadTexture("assets/explosion.png");
@@ -169,7 +157,6 @@ namespace DuckHunt_Raylib
       endDog = Raylib.LoadTexture("assets/endDog.png");
       cloud = Raylib.LoadTexture("assets/cloud.png");
 
-      // UI
       reticle = Raylib.LoadTexture("assets/reticle.png");
       shot0 = Raylib.LoadTexture("assets/shot0.png");
       shot1 = Raylib.LoadTexture("assets/shot1.png");
@@ -177,16 +164,13 @@ namespace DuckHunt_Raylib
       shot3 = Raylib.LoadTexture("assets/shot3.png");
       pointDuck = Raylib.LoadTexture("assets/pointDuck.png");
 
-      // Directions
-      directions = Raylib.LoadTexture("assets/directions.png");
-
-      // Fonts
+      // directions = Raylib.LoadTexture("assets/directions.png");
       quartz = Raylib.LoadFont("assets/Quartz.ttf");
     }
 
     public void UnloadContent()
     {
-      Raylib.UnloadTexture(directions);
+      // Raylib.UnloadTexture(directions);
       Raylib.UnloadTexture(dog);
       Raylib.UnloadSound(sniff);
       Raylib.UnloadTexture(screen);
@@ -210,7 +194,6 @@ namespace DuckHunt_Raylib
 
     public void Update()
     {
-      // START DOG
       timer += deltaTime * 1000;
 
       if (timer > interval)
@@ -238,14 +221,14 @@ namespace DuckHunt_Raylib
           currentFrame = 7;
         }
         if (jumpTime > 100f)
-          dog.Equals(null);
+          Raylib.UnloadTexture(dog);
 
         timer = 0f;
       }
-      sourceRect = new Rectangle(currentFrame * spriteWidth, 0, spriteWidth, spriteHeight);
-      // END DOG
 
-      // START CLOUD
+      sourceRect = new Rectangle(currentFrame * spriteWidth, 0, spriteWidth, spriteHeight);
+
+      // Clouds scrolling
       for (int x = 0; x < 4; x++)
       {
         cloudRect[x].X -= 1;
@@ -253,11 +236,9 @@ namespace DuckHunt_Raylib
         if (cloudRect[x].X + 350 <= 0)
           cloudRect[x].X = screenWidth;
       }
-      // END CLOUD
 
-      if (dog.Equals(null) && !quack.gameOver)
+      if (!quack.gameOver)
       {
-        // START RETICLE
         Vector2 mousePosition = Raylib.GetMousePosition();
         retRect.X = mousePosition.X - retRect.Width / 2;
         retRect.Y = mousePosition.Y - retRect.Height / 2;
@@ -286,13 +267,9 @@ namespace DuckHunt_Raylib
           retRect.Y = 500;
           exRect.Y = 510;
         }
-        // END RETICLE
 
-        // START DUCK
         quack.Update();
-        // END DUCK
 
-        // START SHOOT
         if (quack.isFlying)
         {
           if (quack.shot == 3)
@@ -315,9 +292,9 @@ namespace DuckHunt_Raylib
           Raylib.PlaySound(gunshot);
           quack.shot--;
 
-          if (center.X >= quack.duckRect.X && center.X <= quack.duckRect.X + 65 &&
-              center.Y >= quack.duckRect.Y && center.Y <= quack.duckRect.Y + 71 &&
-              quack.isFlying)
+          if (center.X >= quack.duckRect.X && center.X <= quack.duckRect.X + 65
+              && center.Y >= quack.duckRect.Y && center.Y <= quack.duckRect.Y + 71
+              && quack.isFlying)
           {
             quack.isFlying = false;
             Raylib.PlaySound(quackSound);
@@ -330,11 +307,9 @@ namespace DuckHunt_Raylib
         {
           isShooting--;
         }
-
-        // END SHOOT
       }
 
-      if (dog.Equals(null) && quack.gameOver)
+      if (quack.gameOver)
       {
         if (endDogRect.Y > 350)
           endDogRect.Y -= 2;
@@ -371,13 +346,13 @@ namespace DuckHunt_Raylib
           Raylib.DrawTexture(pointDuck, (int)pointDuckRect[x].X, (int)pointDuckRect[x].Y, Color.White);
       }
 
-      if (!dog.Equals(null))
+      if (dog.Id != 0)
       {
         foreach (Rectangle r in cloudRect)
           Raylib.DrawTexture(cloud, (int)r.X, (int)r.Y, Color.White);
         Raylib.DrawTexture(flora, (int)floraRect.X, (int)floraRect.Y, Color.White);
         Raylib.DrawTextureRec(dog, sourceRect, new Vector2(dogRect.X, dogRect.Y), Color.White);
-        Raylib.DrawTexture(directions, (int)directRect.X, (int)directRect.Y, Color.White);
+        // Raylib.DrawTexture(directions, (int)directRect.X, (int)directRect.Y, Color.White);
       }
       else
       {
@@ -401,6 +376,15 @@ namespace DuckHunt_Raylib
       }
 
       Raylib.EndDrawing();
+    }
+
+    public bool IsKeyPressed()
+    {
+      if (Raylib.IsKeyPressed(KeyboardKey.Space))
+      {
+        return true;
+      }
+      return false;
     }
   }
 }
