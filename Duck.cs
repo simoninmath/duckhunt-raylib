@@ -28,8 +28,10 @@ namespace DuckHunt
 
     public int shot;
     public Sound gunCock;
+    public Sound quackQuack;
 
-    public Duck(Sound gunCockSound)
+    // Constructor
+    public Duck(Sound gunCockSound, Sound quackQuackSound)
     {
       isDead = new bool[20];
       rand = new Random();
@@ -45,6 +47,7 @@ namespace DuckHunt
 
       shot = 3;
       gunCock = gunCockSound;
+      quackQuack = quackQuackSound;
     }
 
     public void Update()
