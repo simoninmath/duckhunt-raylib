@@ -1,17 +1,38 @@
 ﻿using Raylib_cs;
-using static Raylib_cs.Raylib;
-using System;
 
-namespace DuckHunt
+namespace DuckHunt_Raylib
 {
   static class Program
   {
-    // The main entry point for the application.
     static void Main(string[] args)
     {
-      Game game = new Game();
-      game.Run();
+      int screenWidth = 1100;
+      int screenHeight = 700;
+
+      Raylib.InitWindow(screenWidth, screenHeight, "Duck Hunt with Raylib-cs project!");
+      Raylib.SetTargetFPS(60);
+      Raylib.InitAudioDevice();
+
+      GamePlay gamePlay = new GamePlay(screenWidth, screenHeight);
+
+      gamePlay.LoadContent();
+      gamePlay.Initialize();
+
+      // if (gamePlay.IsKeyPressed() == true)
+      // {
+      //   gamePlay.LoadContent();
+      //   gamePlay.Initialize();
+      // }
+
+      while (!Raylib.WindowShouldClose())
+      {
+        gamePlay.Time();
+        gamePlay.Update();
+        gamePlay.Draw();
+      }
+
+      gamePlay.UnloadContent();
+      Raylib.CloseWindow();
     }
   }
 }
-
